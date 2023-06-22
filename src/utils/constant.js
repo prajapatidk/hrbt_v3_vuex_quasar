@@ -7,3 +7,14 @@ export const avoidHeader = {
     authorization: null,
   },
 };
+
+export const teams = [
+  "Hios",
+  "HiSecOS",
+  "HiLCOS",
+  "Provize",
+  "Wireless",
+  "Grtcomm",
+];
+
+export const roles = ["ADMIN", "USER"];

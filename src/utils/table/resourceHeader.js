@@ -34,10 +34,10 @@ export const resourcetableHeader = [
     sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
   },
   {
-    name: "mgmtPport",
+    name: "mgmtport",
     align: "center",
     label: "MGMT Pport",
-    field: "mgmtPport",
+    field: "mgmtport",
     sortable: true,
     sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
   },

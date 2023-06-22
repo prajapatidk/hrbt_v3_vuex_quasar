@@ -9,6 +9,7 @@
       table-header-class="text-h6 text-weight-bold"
       flat
       bordered
+      :rows-per-page-options="[14]"
     >
       <template v-slot:top>
         <q-btn color="primary" label="Add Resource" class="text-capitalize" />
@@ -35,11 +36,27 @@
         </q-input>
       </template>
       <!-- <template v-slot:body-cell-serial="props">
-        <q-td :props="props">{{ props.pageIndex }}</q-td>
+        <q-td :props="props">{{ props.pageIndex + 1 }}</q-td>
       </template> -->
+      <template v-slot:body-cell-status="props">
+        <q-td :props="props">
+          <q-btn
+            color="secondary"
+            @click="bookResource(props.row.id)"
+            label="Book Now"
+            size="sm"
+          />
+        </q-td>
+      </template>
       <template v-slot:body-cell-bookedBy="props">
         <q-td :props="props">
-          <q-btn color="secondary" label="Book Now" size="sm" />
+          {{ props.row.bookingname }} <br />
+          {{ props.row.bookingemailId }}
+        </q-td>
+      </template>
+      <template v-slot:body-cell-period="props">
+        <q-td :props="props">
+          {{ props.row.dateIn }} - {{ props.row.dateOut }}
         </q-td>
       </template>
       <template v-slot:body-cell-action="props">
@@ -68,31 +85,26 @@
     </q-table>
   </div>
 
-  <q-dialog v-model="dialog">
+  <q-dialog v-model="bookingDialog">
     <q-card class="q-pa-md" style="width: 670px; max-width: 80vw">
       <q-card-section class="q-pa-none q-pb-md">
         <div class="text-h6">Select the booking date</div>
       </q-card-section>
       <div class="row">
         <div class="col-6">
-          <q-date v-model="days" multiple />
+          <q-date v-model="days" :options="optionsFn" multiple />
         </div>
         <div class="col-6">
           <div class="q-mb-md">
             <q-select
               outlined
-              v-model="model"
-              :options="options"
+              v-model="selectedTeam"
+              :options="teams"
               label="Select Team"
             />
           </div>
           <div class="q-mb-md">
-            <q-input
-              v-model="text"
-              outlined
-              placeholder="Description"
-              type="textarea"
-            />
+            <q-input outlined placeholder="Description" type="textarea" />
           </div>
 
           <div class="row reverse">
@@ -110,14 +122,16 @@ import { exportFile, useQuasar } from "quasar";
 import { defineComponent } from "vue";
 import { mapActions, mapGetters } from "vuex";
 import resourcetableHeader from "@/utils/table/resourceHeader";
+import { teams } from "@/utils/constant";
 
 export default defineComponent({
   name: "ResouceList",
   data() {
     return {
-      dialog: false,
-      days: ["2023/06/18"],
-      options: ["2023/06/18", "2023/06/19", "2023/06/22"],
+      bookingDialog: false,
+      days: [],
+      selectedTeam: null,
+      teams: teams,
       filter: "",
       columns: [
         // {
@@ -162,10 +176,10 @@ export default defineComponent({
           sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
         },
         {
-          name: "mgmtPport",
+          name: "mgmtport",
           align: "center",
           label: "MGMT Pport",
-          field: "mgmtPport",
+          field: "mgmtport",
           sortable: true,
           sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
         },
@@ -223,40 +237,16 @@ export default defineComponent({
         },
       ],
 
-      rows: [
-        {
-          id: "2",
-          name: "Frozen Yogurt",
-          type: 159,
-          ipAddress: 6.0,
-          console: 24,
-          mgmtPport: 4.0,
-          model: 87,
-          aca: "14%",
-          status: "1%",
-          period: "s",
-          team: "1%",
-        },
-        {
-          id: "3",
-          name: "Frozen Yogurt",
-          type: 159,
-          ipAddress: 6.0,
-          console: 24,
-          mgmtPport: 4.0,
-          model: 87,
-          aca: "13%",
-          status: "1%",
-          period: "s",
-          team: "1%",
-        },
-      ],
       optionsFn(date) {
         const currDate = new Date()
           .toISOString()
           .split("T")[0]
           .replaceAll("-", "/");
-        return date >= currDate && date <= "2050/12/31";
+        return (
+          date >= currDate &&
+          date <= "2050/12/31" &&
+          !["2023/06/25"].includes(date)
+        );
       },
     };
   },
@@ -306,6 +296,9 @@ export default defineComponent({
           icon: "warning",
         });
       }
+    },
+    bookResource(id) {
+      this.bookingDialog = true;
     },
   },
 });
