@@ -42,7 +42,7 @@
         <q-td :props="props">
           <q-btn
             color="secondary"
-            @click="bookResource(props.row.id)"
+            @click="openBookingModal(props.row.id)"
             label="Book Now"
             size="sm"
           />
@@ -63,7 +63,7 @@
         <q-td :props="props">
           <q-btn
             color="positive"
-            @click="resourceDetails(props.row.id)"
+            @click="openResourceDetailsModal(props.row.id)"
             icon-right="visibility"
             size="sm"
           />
@@ -85,12 +85,24 @@
     </q-table>
   </div>
 
-  <q-dialog v-model="bookingDialog">
+  <q-dialog v-model="openCommonDialog" :persistent="true">
     <q-card class="q-pa-md" style="width: 670px; max-width: 80vw">
-      <q-card-section class="q-pa-none q-pb-md">
-        <div class="text-h6">Select the booking date</div>
+      <q-card-section class="row q-pa-none q-pb-md">
+        <div class="text-h6" v-if="bookingModalElement">
+          Select the booking date
+        </div>
+        <div class="text-h6" v-if="resourceModalElement">Resource details</div>
+        <q-space />
+        <q-btn
+          icon="close"
+          flat
+          round
+          dense
+          @click="closeCommonModal"
+          v-close-popup
+        />
       </q-card-section>
-      <div class="row">
+      <div class="row" v-if="bookingModalElement">
         <div class="col-6">
           <q-date v-model="days" :options="optionsFn" multiple />
         </div>
@@ -108,9 +120,55 @@
           </div>
 
           <div class="row reverse">
-            <q-btn label="Book Now" type="submit" color="primary" />
+            <q-btn
+              label="Book Now"
+              type="submit"
+              class="q-ml-sm"
+              color="secondary"
+            />
+            <q-btn label="Clear" type="submit" color="brown-5" />
           </div>
         </div>
+      </div>
+      <div class="row" v-if="resourceModalElement">
+        <div class="col-3 q-pt-sm">Name</div>
+        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.name }}</div>
+
+        <div class="col-3 q-pt-sm">Type</div>
+        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.type }}</div>
+
+        <div class="col-3 q-pt-sm">IP Address</div>
+        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.ipAddress }}</div>
+
+        <div class="col-3 q-pt-sm">Console</div>
+        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.console }}</div>
+
+        <div class="col-3 q-pt-sm">MGMT Port</div>
+        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.mgmtport }}</div>
+
+        <div class="col-3 q-pt-sm">Model</div>
+        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.model }}</div>
+
+        <div class="col-3 q-pt-sm">ACA</div>
+        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.aca }}</div>
+
+        <!-- <div class="col-3 q-pt-sm">Status</div>
+        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.data }}</div> -->
+
+        <div class="col-3 q-pt-sm">Team</div>
+        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.team }}</div>
+
+        <div class="col-3 q-pt-sm">Description</div>
+        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.description }}</div>
+      </div>
+      <div class="row reverse">
+        <q-btn
+          label="Close"
+          type="submit"
+          v-close-popup
+          @click="closeCommonModal"
+          color="primary"
+        />
       </div>
     </q-card>
   </q-dialog>
@@ -119,7 +177,7 @@
 
 <script>
 import { exportFile, useQuasar } from "quasar";
-import { defineComponent } from "vue";
+import { defineComponent, watch } from "vue";
 import { mapActions, mapGetters } from "vuex";
 import resourcetableHeader from "@/utils/table/resourceHeader";
 import { teams } from "@/utils/constant";
@@ -128,11 +186,13 @@ export default defineComponent({
   name: "ResouceList",
   data() {
     return {
-      bookingDialog: false,
+      openCommonDialog: false,
       days: [],
       selectedTeam: null,
       teams: teams,
       filter: "",
+      bookingModalElement: false,
+      resourceModalElement: false,
       columns: [
         // {
         //   name: "serial",
@@ -254,10 +314,10 @@ export default defineComponent({
     await this.fetchAll();
   },
   computed: {
-    ...mapGetters("resource", ["GET_RESOURCES"]),
+    ...mapGetters("resource", ["GET_RESOURCES", "GET_RESOURCE_DETAILS"]),
   },
   methods: {
-    ...mapActions("resource", ["fetchAll"]),
+    ...mapActions("resource", ["fetchAll", "resourceDetails"]),
     wrapCsvValue(val, formatFn, row) {
       let formatted = formatFn !== void 0 ? formatFn(val, row) : val;
 
@@ -297,9 +357,26 @@ export default defineComponent({
         });
       }
     },
-    bookResource(id) {
-      this.bookingDialog = true;
+    openBookingModal(id) {
+      this.openCommonDialog = true;
+      this.bookingModalElement = true;
     },
+    openResourceDetailsModal(id) {
+      this.openCommonDialog = true;
+      this.resourceModalElement = true;
+      this.resourceDetails(id);
+    },
+    closeCommonModal() {
+      setTimeout(() => {
+        this.bookingModalElement = false;
+        this.resourceModalElement = false;
+      }, 800);
+    },
+  },
+  watch: {
+    // openCommonDialog() {
+    //   this.bookingForm = true;
+    // },
   },
 });
 </script>
