@@ -17,4 +17,6 @@ export const teams = [
   "Grtcomm",
 ];
 
+export const resourceType = ["VM", "Device", "Server"];
+
 export const roles = ["ADMIN", "USER"];

@@ -1,5 +1,54 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-lg">
+    <q-card class="my-card q-py-md">
+      <q-card-section>
+        <div class="row">
+          <div class="col-4 q-pa-sm">
+            <q-input filled v-model="name" label="Resource name" />
+          </div>
+          <div class="col-4 q-pa-sm">
+            <q-select
+              filled
+              color="purple-12"
+              v-model="type"
+              :options="resourceType"
+              label="Label"
+            />
+          </div>
+          <div class="col-4 q-pa-sm">
+            <q-input filled v-model="ipAddress" label="IP Address" />
+          </div>
+          <div class="col-4 q-pa-sm">
+            <q-input filled v-model="console" label="Console" />
+          </div>
+          <div class="col-4 q-pa-sm">
+            <q-input filled v-model="mgmtport" label="MGMT Port" />
+          </div>
+          <div class="col-4 q-pa-sm">
+            <q-input filled v-model="model" label="Model" />
+          </div>
+          <div class="col-4 q-pa-sm">
+            <q-input filled v-model="aca" label="ACA" />
+          </div>
+        </div>
+        <div class="q-px-sm q-pt-md">
+          <q-btn
+            label="Submit"
+            type="submit"
+            @click="onSubmit"
+            color="primary"
+          />
+          <q-btn
+            label="Reset"
+            type="reset"
+            color="primary"
+            flat
+            class="q-ml-sm"
+          />
+        </div>
+      </q-card-section>
+    </q-card>
+
     <q-table
       title="Treats"
       :filter="filter"
@@ -12,28 +61,30 @@
       :rows-per-page-options="[14]"
     >
       <template v-slot:top>
-        <q-btn color="primary" label="Add Resource" class="text-capitalize" />
-        <q-space />
-        <q-btn
-          color="primary"
-          icon-right="archive"
-          label="Export to csv"
-          no-caps
-          @click="exportTable"
-          class="q-mr-md"
-        />
-        <q-input
-          borderless
-          dense
-          debounce="300"
-          color="primary"
-          v-model="filter"
-          outlined
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
+        <div class="q-pa-sm row full-width">
+          <q-btn color="primary" label="Add Resource" class="text-capitalize" />
+          <q-space />
+          <q-btn
+            color="primary"
+            icon-right="archive"
+            label="Export to csv"
+            no-caps
+            @click="exportTable"
+            class="q-mr-md"
+          />
+          <q-input
+            borderless
+            dense
+            debounce="300"
+            color="primary"
+            v-model="filter"
+            outlined
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </div>
       </template>
       <!-- <template v-slot:body-cell-serial="props">
         <q-td :props="props">{{ props.pageIndex + 1 }}</q-td>
@@ -69,7 +120,7 @@
           />
           <q-btn
             color="primary"
-            @click="updateResource(props.row.id)"
+            @click="editResource(props.row.id)"
             icon-right="edit"
             class="q-mx-sm"
             size="sm"
@@ -132,34 +183,34 @@
       </div>
       <div class="row" v-if="resourceModalElement">
         <div class="col-3 q-pt-sm">Name</div>
-        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.name }}</div>
+        <div class="col-9 q-pt-sm">{{ resourceItemDetails.name }}</div>
 
         <div class="col-3 q-pt-sm">Type</div>
-        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.type }}</div>
+        <div class="col-9 q-pt-sm">{{ resourceItemDetails.type }}</div>
 
         <div class="col-3 q-pt-sm">IP Address</div>
-        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.ipAddress }}</div>
+        <div class="col-9 q-pt-sm">{{ resourceItemDetails.ipAddress }}</div>
 
         <div class="col-3 q-pt-sm">Console</div>
-        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.console }}</div>
+        <div class="col-9 q-pt-sm">{{ resourceItemDetails.console }}</div>
 
         <div class="col-3 q-pt-sm">MGMT Port</div>
-        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.mgmtport }}</div>
+        <div class="col-9 q-pt-sm">{{ resourceItemDetails.mgmtport }}</div>
 
         <div class="col-3 q-pt-sm">Model</div>
-        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.model }}</div>
+        <div class="col-9 q-pt-sm">{{ resourceItemDetails.model }}</div>
 
         <div class="col-3 q-pt-sm">ACA</div>
-        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.aca }}</div>
+        <div class="col-9 q-pt-sm">{{ resourceItemDetails.aca }}</div>
 
         <!-- <div class="col-3 q-pt-sm">Status</div>
         <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.data }}</div> -->
 
         <div class="col-3 q-pt-sm">Team</div>
-        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.team }}</div>
+        <div class="col-9 q-pt-sm">{{ resourceItemDetails.team }}</div>
 
         <div class="col-3 q-pt-sm">Description</div>
-        <div class="col-9 q-pt-sm">{{ GET_RESOURCE_DETAILS.description }}</div>
+        <div class="col-9 q-pt-sm">{{ resourceItemDetails.description }}</div>
       </div>
       <div class="row reverse">
         <q-btn
@@ -180,7 +231,8 @@ import { exportFile, useQuasar } from "quasar";
 import { defineComponent, watch } from "vue";
 import { mapActions, mapGetters } from "vuex";
 import resourcetableHeader from "@/utils/table/resourceHeader";
-import { teams } from "@/utils/constant";
+import { teams, resourceType } from "@/utils/constant";
+import { validateEmail, notifyAlert } from "@/utils/helper";
 
 export default defineComponent({
   name: "ResouceList",
@@ -190,9 +242,19 @@ export default defineComponent({
       days: [],
       selectedTeam: null,
       teams: teams,
+      resourceType: resourceType,
       filter: "",
       bookingModalElement: false,
       resourceModalElement: false,
+      name: "",
+      type: "",
+      ipAddress: "",
+      console: "",
+      mgmtport: "",
+      model: "",
+      aca: "",
+      editId: null,
+      resourceItemDetails: [],
       columns: [
         // {
         //   name: "serial",
@@ -317,7 +379,52 @@ export default defineComponent({
     ...mapGetters("resource", ["GET_RESOURCES", "GET_RESOURCE_DETAILS"]),
   },
   methods: {
-    ...mapActions("resource", ["fetchAll", "resourceDetails"]),
+    ...mapActions("resource", ["fetchAll", "createResource", "updateResource"]),
+
+    editResource(id) {
+      this.editId = id;
+      const getEditResource = this.GET_RESOURCES.find((item) => item.id == id);
+      this.name = getEditResource.name;
+      this.type = getEditResource.type;
+      this.ipAddress = getEditResource.ipAddress;
+      this.console = getEditResource.console;
+      this.mgmtport = getEditResource.mgmtport;
+      this.model = getEditResource.model;
+      this.aca = getEditResource.aca;
+    },
+
+    async onSubmit() {
+      const payload = {
+        name: this.name,
+        type: this.type,
+        ipAddress: this.ipAddress,
+        console: this.console,
+        mgmtport: this.mgmtport,
+        model: this.model,
+        aca: this.aca,
+      };
+
+      try {
+        if (this.editId) {
+          const result = await this.updateResource({
+            id: this.editId,
+            payload: payload,
+          });
+          if (result.status == 200) {
+            notifyAlert("positive", "Resource updated successfully");
+          }
+          this.editId = null;
+          this.clearForm();
+        } else {
+          const result = await this.createResource(payload);
+          if (result.status == 200) {
+            notifyAlert("positive", "Resource created successfully");
+          }
+          this.clearForm();
+        }
+      } catch (e) {}
+    },
+
     wrapCsvValue(val, formatFn, row) {
       let formatted = formatFn !== void 0 ? formatFn(val, row) : val;
 
@@ -364,13 +471,25 @@ export default defineComponent({
     openResourceDetailsModal(id) {
       this.openCommonDialog = true;
       this.resourceModalElement = true;
-      this.resourceDetails(id);
+      this.resourceItemDetails = this.GET_RESOURCES.find(
+        (item) => item.id == id
+      );
     },
     closeCommonModal() {
       setTimeout(() => {
         this.bookingModalElement = false;
         this.resourceModalElement = false;
+        this.resourceItemDetails = [];
       }, 800);
+    },
+    clearForm() {
+      this.name = null;
+      this.type = null;
+      this.ipAddress = null;
+      this.console = null;
+      this.mgmtport = null;
+      this.model = null;
+      this.aca = null;
     },
   },
   watch: {
