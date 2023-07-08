@@ -1,24 +1,24 @@
 <template>
-  <q-layout view="hHh lpR fFf" class="bg-grey-1">
+  <q-layout view="hHh lpR fFf" class="bg-grey-1 bg-color">
     <q-header
       style="box-shadow: 0px 2px 20px rgba(1, 41, 112, 0.1)"
       class="shadow-none bg-white text-grey-8 q-py-xs"
       height-hint="58"
     >
       <q-toolbar>
-        <q-btn
+        <!-- <q-btn
           flat
           dense
-          color="indigo-10"
+          color=""
           round
           @click="toggleLeftDrawer"
           aria-label="Menu"
           icon="menu"
-        />
+        /> -->
 
         <div class="row items-center q-ml-md" v-if="$q.screen.gt.xs">
           <img width="28" src="@/assets/hrbt.webp" />
-          <q-toolbar-title shrink class="q-pt-xs q-pl-sm text-light-blue-9">
+          <q-toolbar-title shrink class="q-pt-xs q-pl-sm text-primary">
             HRBT
           </q-toolbar-title>
         </div>
@@ -62,11 +62,20 @@
       show-if-above
       class="bg-fff q-pt-md"
       style="box-shadow: 0px 0px 20px rgba(1, 41, 112, 0.1)"
-      :width="240"
+      :width="260"
     >
       <q-scroll-area class="fit">
         <q-list padding>
-          <q-item to="/resource" class="q-px-lg q-py-xs" v-ripple clickable>
+          <q-item to="/" class="q-py-xs" v-ripple clickable>
+            <q-item-section avatar class="q-pl-none">
+              <q-icon color="grey" class="" name="home_outline" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Dashboard</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item to="/resource" class="q-py-xs" v-ripple clickable>
             <q-item-section avatar class="q-pl-none">
               <q-icon color="grey" name="handyman_icon" />
             </q-item-section>
@@ -81,6 +90,9 @@
     </q-drawer>
 
     <q-page-container>
+      <div class="q-px-lg q-pt-lg text-h5 text-grey-6">
+        Manage {{ pageName }}
+      </div>
       <router-view />
     </q-page-container>
   </q-layout>
@@ -111,6 +123,11 @@ export default defineComponent({
   mounted() {
     this.checkActiveUser();
   },
+  computed: {
+    pageName() {
+      return this.router.currentRoute.name;
+    },
+  },
   methods: {
     async checkActiveUser() {
       try {
@@ -136,4 +153,23 @@ export default defineComponent({
 ::v-deep(.q-item__section--avatar)
   min-width: initial !important
   padding-right: 10px !important
+
+.bg-color
+  background: #f6f9ff !important
+
+.q-link
+  color: #012970 !important
+  font-size: 16px
+  width: 90%
+  margin: 0 0 10px auto
+
+  i
+    color: #899bbd !important
+
+.q-router-link--exact-active
+  color: #0d6efd !important
+  background-color: #edf4ff
+
+  i
+    color: #0d6efd !important
 </style>

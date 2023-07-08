@@ -1,34 +1,39 @@
 <template>
   <div class="q-pa-lg">
-    <q-card class="my-card q-py-md">
+    <q-card class="my-card q-py-md" v-if="isAddEditMode">
       <q-card-section>
         <div class="row">
           <div class="col-4 q-pa-sm">
-            <q-input filled v-model="name" label="Resource name" />
+            <q-input outlined borderless v-model="name" label="Resource name" />
           </div>
           <div class="col-4 q-pa-sm">
             <q-select
-              filled
-              color="purple-12"
+              outlined
+              borderless
               v-model="type"
               :options="resourceType"
               label="Label"
             />
           </div>
           <div class="col-4 q-pa-sm">
-            <q-input filled v-model="ipAddress" label="IP Address" />
+            <q-input
+              v-model="ipAddress"
+              outlined
+              borderless
+              label="IP Address"
+            />
           </div>
           <div class="col-4 q-pa-sm">
-            <q-input filled v-model="console" label="Console" />
+            <q-input outlined borderless v-model="console" label="Console" />
           </div>
           <div class="col-4 q-pa-sm">
-            <q-input filled v-model="mgmtport" label="MGMT Port" />
+            <q-input outlined borderless v-model="mgmtport" label="MGMT Port" />
           </div>
           <div class="col-4 q-pa-sm">
-            <q-input filled v-model="model" label="Model" />
+            <q-input outlined borderless v-model="model" label="Model" />
           </div>
           <div class="col-4 q-pa-sm">
-            <q-input filled v-model="aca" label="ACA" />
+            <q-input outlined borderless v-model="aca" label="ACA" />
           </div>
         </div>
         <div class="q-px-sm q-pt-md">
@@ -39,39 +44,47 @@
             color="primary"
           />
           <q-btn
-            label="Reset"
-            type="reset"
+            label="Cancel"
+            type="button"
             color="primary"
             flat
             class="q-ml-sm"
+            @click="closeForm"
           />
         </div>
       </q-card-section>
     </q-card>
 
     <q-table
+      v-else
       title="Treats"
       :filter="filter"
       :rows="GET_RESOURCES"
       :columns="columns"
       row-key="name"
-      table-header-class="text-h6 text-weight-bold"
+      table-header-class=""
       flat
       bordered
       :rows-per-page-options="[14]"
+      class="shadow-1 no-border"
     >
       <template v-slot:top>
         <div class="q-pa-sm row full-width">
-          <q-btn color="primary" label="Add Resource" class="text-capitalize" />
-          <q-space />
           <q-btn
+            color="primary"
+            @click="openForm"
+            label="Add Resource"
+            class="text-capitalize"
+          />
+          <q-space />
+          <!-- <q-btn
             color="primary"
             icon-right="archive"
             label="Export to csv"
             no-caps
             @click="exportTable"
             class="q-mr-md"
-          />
+          /> -->
           <q-input
             borderless
             dense
@@ -120,14 +133,14 @@
           />
           <q-btn
             color="primary"
-            @click="editResource(props.row.id)"
+            @click="edititem(props.row.id)"
             icon-right="edit"
             class="q-mx-sm"
             size="sm"
           />
           <q-btn
             color="negative"
-            @click="deleteResource(props.row.id)"
+            @click="deleteItem(props.row.id)"
             icon-right="delete"
             size="sm"
           />
@@ -238,6 +251,7 @@ export default defineComponent({
   name: "ResouceList",
   data() {
     return {
+      isAddEditMode: false,
       openCommonDialog: false,
       days: [],
       selectedTeam: null,
@@ -379,9 +393,23 @@ export default defineComponent({
     ...mapGetters("resource", ["GET_RESOURCES", "GET_RESOURCE_DETAILS"]),
   },
   methods: {
-    ...mapActions("resource", ["fetchAll", "createResource", "updateResource"]),
+    ...mapActions("resource", [
+      "fetchAll",
+      "createResource",
+      "updateResource",
+      "softDeleteResource",
+    ]),
 
-    editResource(id) {
+    openForm: function () {
+      this.isAddEditMode = true;
+    },
+
+    closeForm: function () {
+      this.isAddEditMode = false;
+    },
+
+    edititem: function (id) {
+      this.isAddEditMode = true;
       this.editId = id;
       const getEditResource = this.GET_RESOURCES.find((item) => item.id == id);
       this.name = getEditResource.name;
@@ -393,7 +421,7 @@ export default defineComponent({
       this.aca = getEditResource.aca;
     },
 
-    async onSubmit() {
+    onSubmit: async function () {
       const payload = {
         name: this.name,
         type: this.type,
@@ -414,6 +442,7 @@ export default defineComponent({
             notifyAlert("positive", "Resource updated successfully");
           }
           this.editId = null;
+          this.isAddEditMode = false;
           this.clearForm();
         } else {
           const result = await this.createResource(payload);
@@ -425,7 +454,15 @@ export default defineComponent({
       } catch (e) {}
     },
 
-    wrapCsvValue(val, formatFn, row) {
+    deleteItem: async function (id) {
+      const result = await this.softDeleteResource(id);
+      console.log(result);
+      if (result.status == 200) {
+        notifyAlert("positive", result.data);
+      }
+    },
+
+    wrapCsvValue: function (val, formatFn, row) {
       let formatted = formatFn !== void 0 ? formatFn(val, row) : val;
 
       formatted =
@@ -435,7 +472,7 @@ export default defineComponent({
 
       return `"${formatted}"`;
     },
-    exportTable() {
+    exportTable: function () {
       const content = [this.columns.map((col) => this.wrapCsvValue(col.label))]
         .concat(
           this.rows.map((row) =>
@@ -464,25 +501,25 @@ export default defineComponent({
         });
       }
     },
-    openBookingModal(id) {
+    openBookingModal: function (id) {
       this.openCommonDialog = true;
       this.bookingModalElement = true;
     },
-    openResourceDetailsModal(id) {
+    openResourceDetailsModal: function (id) {
       this.openCommonDialog = true;
       this.resourceModalElement = true;
       this.resourceItemDetails = this.GET_RESOURCES.find(
         (item) => item.id == id
       );
     },
-    closeCommonModal() {
+    closeCommonModal: function () {
       setTimeout(() => {
         this.bookingModalElement = false;
         this.resourceModalElement = false;
         this.resourceItemDetails = [];
       }, 800);
     },
-    clearForm() {
+    clearForm: function () {
       this.name = null;
       this.type = null;
       this.ipAddress = null;
@@ -499,3 +536,8 @@ export default defineComponent({
   },
 });
 </script>
+<style lang="sass" scoped>
+::v-deep(.q-table th)
+  font-size: 14px !important
+  background: #f7f6f6
+</style>
