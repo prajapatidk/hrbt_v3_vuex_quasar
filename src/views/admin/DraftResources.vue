@@ -1,94 +1,6 @@
 <template>
   <div class="q-pa-lg">
-    <q-card class="my-card q-py-md" v-if="isAddEditMode">
-      <q-card-section>
-        <div class="row">
-          <div class="col-4 q-pa-sm">
-            <q-input
-              outlined
-              borderless
-              v-model="name"
-              :rules="[rules.required]"
-              label="Resource name"
-            />
-          </div>
-          <div class="col-4 q-pa-sm">
-            <q-select
-              outlined
-              borderless
-              v-model="type"
-              :options="resourceType"
-              label="Label"
-              :rules="[rules.required]"
-            />
-          </div>
-          <div class="col-4 q-pa-sm">
-            <q-input
-              v-model="ipAddress"
-              outlined
-              borderless
-              label="IP Address"
-              :rules="[rules.required]"
-            />
-          </div>
-          <div class="col-4 q-pa-sm">
-            <q-input
-              outlined
-              borderless
-              v-model="console"
-              :rules="[rules.required]"
-              label="Console"
-            />
-          </div>
-          <div class="col-4 q-pa-sm">
-            <q-input
-              outlined
-              borderless
-              v-model="mgmtport"
-              :rules="[rules.required]"
-              label="MGMT Port"
-            />
-          </div>
-          <div class="col-4 q-pa-sm">
-            <q-input
-              outlined
-              borderless
-              v-model="model"
-              :rules="[rules.required]"
-              label="Model"
-            />
-          </div>
-          <div class="col-4 q-pa-sm">
-            <q-input
-              outlined
-              borderless
-              v-model="aca"
-              :rules="[rules.required]"
-              label="ACA"
-            />
-          </div>
-        </div>
-        <div class="q-px-sm q-pt-md">
-          <q-btn
-            label="Submit"
-            type="submit"
-            @click="onSubmit"
-            color="primary"
-          />
-          <q-btn
-            label="Cancel"
-            type="button"
-            color="primary"
-            flat
-            class="q-ml-sm"
-            @click="closeForm"
-          />
-        </div>
-      </q-card-section>
-    </q-card>
-
     <q-table
-      v-else
       title="Treats"
       :filter="filter"
       :rows="GET_RESOURCES"
@@ -102,21 +14,7 @@
     >
       <template v-slot:top>
         <div class="q-pa-sm row full-width">
-          <q-btn
-            color="primary"
-            @click="openForm"
-            label="Add Resource"
-            class="text-capitalize"
-          />
           <q-space />
-          <q-btn
-            color="primary"
-            icon-right="archive"
-            label="Export to csv"
-            no-caps
-            @click="exportTable"
-            class="q-mr-md"
-          />
           <q-input
             borderless
             dense
@@ -131,9 +29,6 @@
           </q-input>
         </div>
       </template>
-      <!-- <template v-slot:body-cell-serial="props">
-        <q-td :props="props">{{ props.pageIndex + 1 }}</q-td>
-      </template> -->
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
           <q-btn
@@ -293,12 +188,12 @@ import { teams, resourceType } from "@/utils/constant";
 import { validateEmail, notifyAlert } from "@/utils/helper";
 
 export default defineComponent({
-  name: "ResouceList",
+  name: "DraftResources",
   data() {
     return {
       isAddEditMode: false,
       openCommonDialog: false,
-      days: ["2023/07/14"],
+      days: [],
       selectedTeam: null,
       teams: teams,
       resourceType: resourceType,
@@ -431,7 +326,7 @@ export default defineComponent({
         return (
           date >= currDate &&
           date <= "2050/12/31" &&
-          !["2023/07/13", "2023/07/15"].includes(date)
+          !["2023/06/25"].includes(date)
         );
       },
     };
@@ -525,7 +420,7 @@ export default defineComponent({
     exportTable: function () {
       const content = [this.columns.map((col) => this.wrapCsvValue(col.label))]
         .concat(
-          this.GET_RESOURCES.map((row) =>
+          this.rows.map((row) =>
             this.columns
               .map((col) =>
                 this.wrapCsvValue(
@@ -545,8 +440,6 @@ export default defineComponent({
 
       if (status !== true) {
         notifyAlert("negative", "Browser denied file download...");
-      } else {
-        notifyAlert("positive", "File has been downloaded...");
       }
     },
     openBookingModal: function (id) {

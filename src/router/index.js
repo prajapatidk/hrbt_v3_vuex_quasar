@@ -4,6 +4,7 @@ import RegisterView from "../views/landing/RegisterView.vue";
 import LoginView from "../views/landing/LoginView.vue";
 import AdminLayout from "../views/admin/AdminLayout.vue";
 import ResourceList from "../views/admin/ResourceList.vue";
+import DraftResources from "../views/admin/DraftResources.vue";
 import DashboardPage from "../views/admin/DashboardPage.vue";
 
 const routes = [
@@ -31,6 +32,11 @@ const routes = [
         path: "/resource",
         name: "Resources",
         component: ResourceList,
+      },
+      {
+        path: "/draft-resources",
+        name: "Draft Resources",
+        component: DraftResources,
       },
     ],
   },

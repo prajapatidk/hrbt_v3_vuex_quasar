@@ -84,6 +84,15 @@
             </q-item-section>
           </q-item>
 
+          <q-item to="/draft-resources" class="q-py-xs" v-ripple clickable>
+            <q-item-section avatar class="q-pl-none">
+              <q-icon color="grey" name="delete_icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Draft Resources</q-item-label>
+            </q-item-section>
+          </q-item>
+
           <!-- <q-separator class="q-mt-md q-mb-lg" /> -->
         </q-list>
       </q-scroll-area>

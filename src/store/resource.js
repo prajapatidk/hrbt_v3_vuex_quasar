@@ -23,7 +23,15 @@ const mutations = {
 const actions = {
   fetchAll: async function ({ commit }) {
     const response = await axios.get("/resource");
+    console.log(response);
     const result = response.data.filter((s) => s.status != 0);
+    commit("SET_RESOURCE", result);
+    return result;
+  },
+
+  fetchAlldraft: async function ({ commit }) {
+    const response = await axios.get("/resource");
+    const result = response.data.filter((s) => s.status == 0);
     commit("SET_RESOURCE", result);
     return result;
   },
