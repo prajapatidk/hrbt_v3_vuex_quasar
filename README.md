@@ -9,6 +9,9 @@ npm install
 ```
 npm run serve
 ```
+- this one
+- that one
+- the other one
 
 ### Compiles and minifies for production
 ```
